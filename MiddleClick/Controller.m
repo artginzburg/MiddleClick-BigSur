@@ -165,7 +165,7 @@ static void unregisterTouchCallback(void)
     /// create eventTap which listens for core grpahic events with the filter
     /// specified above (so left mouse down and up again)
     CFMachPortRef eventTap = CGEventTapCreate(
-                                              kCGHIDEventTap, kCGHeadInsertEventTap, kCGEventTapOptionDefault,
+                                              kCGHIDEventTap, kCGHeadInsertEventTap, kCGEventTapOptionListenOnly,
                                               eventMask, mouseCallback, NULL);
     currentEventTap = eventTap;
 

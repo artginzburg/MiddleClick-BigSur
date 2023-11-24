@@ -15,7 +15,8 @@
 
 - (void)initAccessibilityPermissionStatus:(NSMenu*)menu
 {
-  BOOL hasAccessibilityPermission = AXIsProcessTrusted();
+  NSDictionary *options = @{(id)kAXTrustedCheckOptionPrompt: @YES};
+  BOOL hasAccessibilityPermission = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
 
   [self updateAccessibilityPermissionStatus:menu
                  hasAccessibilityPermission:hasAccessibilityPermission];
