@@ -171,7 +171,7 @@ static void unregisterTouchCallback(void)
 {
     /// we only want to see left mouse down and left mouse up, because we only want
     /// to change that one
-    CGEventMask eventMask = (CGEventMaskBit(kCGEventLeftMouseDown) | CGEventMaskBit(kCGEventLeftMouseUp));
+    CGEventMask eventMask = (CGEventMaskBit(kCGEventLeftMouseDown) | CGEventMaskBit(kCGEventLeftMouseUp) | CGEventMaskBit(kCGEventRightMouseDown) | CGEventMaskBit(kCGEventRightMouseUp));
 
     /// create eventTap which listens for core grpahic events with the filter
     /// specified above (so left mouse down and up again)
@@ -265,15 +265,15 @@ CGEventRef mouseCallback(CGEventTapProxy proxy, CGEventType type,
                          CGEventRef event, void* refcon)
 {
   if (needToClick) {
-    if (threeDown && type == kCGEventLeftMouseDown) {
+    if (threeDown && (type == kCGEventLeftMouseDown || type == kCGEventRightMouseDown)) {
       wasThreeDown = YES;
       CGEventSetType(event, kCGEventOtherMouseDown);
       CGEventSetIntegerValueField(event, kCGMouseEventButtonNumber,
                                   kCGMouseButtonCenter);
       threeDown = NO;
     }
-    
-    if (wasThreeDown && type == kCGEventLeftMouseUp) {
+
+    if (wasThreeDown && (type == kCGEventLeftMouseUp || type == kCGEventRightMouseUp)) {
       wasThreeDown = NO;
       CGEventSetType(event, kCGEventOtherMouseUp);
       CGEventSetIntegerValueField(event, kCGMouseEventButtonNumber,
