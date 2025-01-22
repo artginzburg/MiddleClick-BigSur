@@ -9,12 +9,14 @@ int main(int argc, char* argv[])
     kAllowMoreFingers,
     kMaxDistanceDelta,
     kMaxTimeDeltaMs,
+    kIgnoredAppBundles
   };
   id objects[] = {
     [NSNumber numberWithInt:kFingersNumDefault],
     [NSNumber numberWithBool:kAllowMoreFingersDefault],
     [NSNumber numberWithFloat:kMaxDistanceDeltaDefault],
     [NSNumber numberWithInt:kMaxTimeDeltaMsDefault],
+    [NSArray arrayWithArray:kIgnoredAppBundlesDefault]
   };
   NSUInteger count = sizeof(objects) / sizeof(id);
   NSDictionary *appDefaults = [NSDictionary

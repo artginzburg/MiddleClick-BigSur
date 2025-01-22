@@ -14,3 +14,7 @@
 // The maximum interval in milliseconds between touch and release for a tap to be considered valid.
 #define kMaxTimeDeltaMs @"maxTimeDelta"
 #define kMaxTimeDeltaMsDefault 300
+
+// List of applications that should be ignored
+#define kIgnoredAppBundles @"ignoredAppBundles"
+#define kIgnoredAppBundlesDefault [NSArray array]

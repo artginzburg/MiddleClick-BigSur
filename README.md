@@ -140,6 +140,14 @@ defaults write com.rouge41.middleClick maxTimeDelta 150
 
 > Default is 300
 
+### Ignoring certain applications
+
+- You can disable MiddleClick for certain app windows by providing a list of app bundles to ignore
+
+```ps1
+defaults write com.rouge41.middleClick ignoredAppBundles -array com.microsoft.rdc.macos com.apple.Terminal
+```
+
 ---
 
 <details>

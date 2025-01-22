@@ -265,19 +265,21 @@ CGEventRef mouseCallback(CGEventTapProxy proxy, CGEventType type,
                          CGEventRef event, void* refcon)
 {
   if (needToClick) {
-    if (threeDown && type == kCGEventLeftMouseDown) {
-      wasThreeDown = YES;
-      CGEventSetType(event, kCGEventOtherMouseDown);
-      CGEventSetIntegerValueField(event, kCGMouseEventButtonNumber,
-                                  kCGMouseButtonCenter);
-      threeDown = NO;
-    }
-    
-    if (wasThreeDown && type == kCGEventLeftMouseUp) {
-      wasThreeDown = NO;
-      CGEventSetType(event, kCGEventOtherMouseUp);
-      CGEventSetIntegerValueField(event, kCGMouseEventButtonNumber,
-                                  kCGMouseButtonCenter);
+    if (!isIgnoredAppBundle(CGEventGetLocation(event))) {
+      if (threeDown && type == kCGEventLeftMouseDown) {
+        wasThreeDown = YES;
+        CGEventSetType(event, kCGEventOtherMouseDown);
+        CGEventSetIntegerValueField(event, kCGMouseEventButtonNumber,
+                                    kCGMouseButtonCenter);
+        threeDown = NO;
+      }
+
+      if (wasThreeDown && type == kCGEventLeftMouseUp) {
+        wasThreeDown = NO;
+        CGEventSetType(event, kCGEventOtherMouseUp);
+        CGEventSetIntegerValueField(event, kCGMouseEventButtonNumber,
+                                    kCGMouseButtonCenter);
+      }
     }
   }
   return event;
@@ -309,10 +311,12 @@ int touchCallback(int device, Finger* data, int nFingers, double timestamp,
           CGPoint ourLoc = CGEventGetLocation(ourEvent);
           CFRelease(ourEvent);
           
-          CGMouseButton buttonType = kCGMouseButtonCenter;
-          
-          postMouseEvent(kCGEventOtherMouseDown, buttonType, ourLoc);
-          postMouseEvent(kCGEventOtherMouseUp, buttonType, ourLoc);
+          if (!isIgnoredAppBundle(ourLoc)) {
+            CGMouseButton buttonType = kCGMouseButtonCenter;
+
+            postMouseEvent(kCGEventOtherMouseDown, buttonType, ourLoc);
+            postMouseEvent(kCGEventOtherMouseUp, buttonType, ourLoc);
+          }
         }
       }
     } else if (nFingers > 0 && touchStartTime == NULL) {
@@ -371,6 +375,39 @@ int touchCallback(int device, Finger* data, int nFingers, double timestamp,
   NSLog(@"Restarting app functionality...");
   stopUnstableListeners();
   [self startUnstableListeners];
+}
+
+/// Check if window at a given point belongs to an ignored app bundle
+static BOOL isIgnoredAppBundle(CGPoint point) {
+  NSArray* ignoredAppBundles = [[NSUserDefaults standardUserDefaults] arrayForKey:kIgnoredAppBundles];
+  // only check if there are ignored app bundles
+  if ([ignoredAppBundles count] == 0) {
+    return false;
+  }
+
+  point.y = [[NSScreen mainScreen] frame].size.height - point.y;
+
+  NSInteger windowNumber = [NSWindow windowNumberAtPoint:point belowWindowWithWindowNumber:0];
+
+  bool ignored = false;
+
+  CFArrayRef windows = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+  for (NSDictionary* window in (__bridge NSArray*)windows) {
+    if ([window[(NSString*)kCGWindowNumber] integerValue] == windowNumber) {
+      int pid = (int)[window[(NSString*)kCGWindowOwnerPID] integerValue];
+      NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: pid];
+
+      NSString* appBundle = [app bundleIdentifier];
+      if ([ignoredAppBundles containsObject:appBundle]) {
+        ignored = true;
+      }
+
+      break;
+    }
+  }
+
+  CFRelease(windows);
+  return ignored;
 }
 
 /// Callback when a multitouch device is added.
