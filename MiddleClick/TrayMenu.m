@@ -84,6 +84,11 @@
   [tapToClickItem setState:clickMode ? NSControlStateValueOff : NSControlStateValueOn];
 }
 
+- (void)actionReload:(id)sender
+{
+  [myController scheduleRestart:0];
+}
+
 - (void)actionQuit:(id)sender
 {
   [NSApp terminate:sender];
@@ -127,6 +132,11 @@
   
   // Add Separator
   [menu addItem:[NSMenuItem separatorItem]];
+  
+  NSMenuItem* reloadItem = [menu addItemWithTitle:@"Reload"
+                                            action:@selector(actionReload:)
+                                     keyEquivalent:@"r"];
+  [reloadItem setTarget:self];
   
   // Add Quit Action
   menuItem = [menu addItemWithTitle:@"Quit"

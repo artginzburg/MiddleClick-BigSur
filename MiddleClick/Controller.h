@@ -4,6 +4,7 @@
 }
 
 - (void)start;
+- (void)scheduleRestart:(NSTimeInterval)delay;
 - (void)setMode:(BOOL)click;
 - (BOOL)getClickMode;
 - (void)resetClickMode;
